@@ -1,0 +1,175 @@
+<div class="page-container">
+  <header class="app-header">
+    <h1 class="app-title">Gmail-like Labels in ag-Grid</h1>
+    <button class="manage-labels-btn" (click)="openManageLabels()">Manage Labels</button>
+  </header>
+ 
+  <div class="controls-bar">
+    <div class="label-actions-section">
+      <h3>Label Actions</h3>
+      <div class="action-buttons">
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" [disabled]="selectedItemIds.length === 0">Add Label <span class="arrow-down">&#9660;</span></button>
+          <div class="dropdown-content">
+            <ng-container *ngIf="allLabels.length > 0">
+              <a *ngFor="let label of allLabels" href="#" (click)="assignLabelToSelectedItems(label.id); $event.preventDefault()">
+                <span class="label-color-dot" [style.background-color]="label.color || '#cccccc'"></span>
+                {{ label.name }}
+              </a>
+            </ng-container>
+            <div *ngIf="allLabels.length === 0" class="no-labels-message">No labels available to add.</div>
+          </div>
+        </div>
+ 
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" [disabled]="selectedItemIds.length === 0">Remove Label <span class="arrow-down">&#9660;</span></button>
+          <div class="dropdown-content" *ngIf="allLabels.length > 0">
+            <a *ngFor="let label of allLabels" href="#" (click)="removeLabelFromSelectedItems(label.id); $event.preventDefault()">
+              <span class="label-color-dot" [style.background-color]="label.color || '#cccccc'"></span>
+              {{ label.name }}
+            </a>
+          </div>
+          <div class="dropdown-content" *ngIf="allLabels.length === 0">
+            <span class="no-labels-message">No labels to remove</span>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="filter-by-label-section">
+      <h3>Filter by Label</h3>
+      <div class="label-filter-pills">
+        <button *ngFor="let label of allLabels"
+                class="label-pill"
+                [class.active]="selectedFilterLabelIds.includes(label.id)"
+                [style.background-color]="selectedFilterLabelIds.includes(label.id) ? (label.color || '#6366f1') : '#f0f4f8'"
+                [style.border-color]="selectedFilterLabelIds.includes(label.id) ? (label.color || '#6366f1') : '#d1d5db'"
+                [style.color]="selectedFilterLabelIds.includes(label.id) ? 'white' : getContrastColor(label.color)"
+                (click)="toggleFilterLabel(label.id)">
+          {{ label.name }}
+        </button>
+        <button class="btn btn-tertiary clear-filters-btn" (click)="clearFilter()" [disabled]="selectedFilterLabelIds.length === 0">Clear Filters</button>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="grid-panel">
+    <table class="data-grid">
+      <thead>
+        <tr>
+          <th><input type="checkbox" /></th>
+          <th>Subject <span class="sort-icon">&#9660;</span></th>
+          <th>Sender <span class="sort-icon">&#9660;</span></th>
+          <th>Date <span class="sort-icon">&#9660;</span></th>
+          <th>Labels <span class="sort-icon">&#9660;</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items" [class.selected]="selectedItemIds.includes(item.id)">
+          <td><input type="checkbox" [checked]="selectedItemIds.includes(item.id)" (change)="toggleItemSelection(item.id)" /></td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.description }}</td>
+          <td>{{ item.date | date:'yyyy-MM-dd' }}</td>
+          <td class="labels-cell">
+            <span *ngFor="let label of item.labels"
+                  class="item-label-pill"
+                  [style.background-color]="label.color || '#cce7ff'"
+                  [style.border-color]="label.color || '#99c2ff'"
+                  [style.color]="getContrastColor(label.color)">
+              {{ label.name }}
+            </span>
+            <button class="add-label-plus-btn" (click)="toggleLabelManagementDropdown(item, $event)">+</button>
+ 
+            <div class="label-management-popover" *ngIf="showLabelManagementDropdownFor === item.id">
+              <span class="close-popover" (click)="closeLabelDropdown()">&#x2715;</span>
+              <div *ngIf="allLabels.length > 0; else noLabelsAvailable">
+                <div *ngFor="let label of allLabels" class="popover-label-option">
+                  <input type="checkbox"
+                         [id]="'item-' + item.id + '-label-' + label.id"
+                         [checked]="isLabelAssigned(item, label.id)"
+                         (change)="toggleLabelAssignment(item, label.id)" />
+                  <label [for]="'item-' + item.id + '-label-' + label.id">{{ label.name }}</label>
+                </div>
+              </div>
+              <ng-template #noLabelsAvailable>
+                <p class="no-labels-message">No labels to assign.</p>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="items.length === 0">
+          <td colspan="5" class="no-data-message">No items found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+ 
+  <div class="pagination-footer">
+    <span class="page-size-text">Page Size:</span>
+    <select class="page-size-select">
+      <option value="10">10</option>
+      <option value="25">25</option>
+      <option value="50">50</option>
+    </select>
+    <span class="page-info">1 to 8 of 8</span>
+    <div class="pagination-nav-buttons">
+      <button class="nav-button" disabled>&#9664;</button> <button class="nav-button">&#9654;</button> </div>
+  </div>
+</div>
+ 
+<div class="modal-backdrop" *ngIf="showManageLabelsModal" (click)="closeManageLabelsModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Manage Labels</h2>
+      <button class="close-button" (click)="closeManageLabelsModal()">&times;</button>
+    </div>
+ 
+    <div class="modal-body">
+      <div class="current-labels-section">
+        <h3>Current Labels</h3>
+        <div class="labels-list">
+          <div class="label-item" *ngFor="let label of allLabels">
+            <div class="label-info">
+              <span class="label-color-dot" [style.background-color]="label.color || '#cccccc'"></span>
+              <div class="label-text-container">
+                <span class="label-name">{{ label.name }}</span>
+                <span class="label-description">{{ label.description }}</span>
+              </div>
+            </div>
+            <div class="label-actions">
+              <button class="action-btn edit-btn" (click)="editLabel(label)">
+                <span class="icon">&#x270E;</span>
+              </button>
+              <button class="action-btn delete-btn" (click)="deleteLabel(label.id)">
+                <span class="icon">&#x1F5D1;</span>
+              </button>
+            </div>
+          </div>
+          <p *ngIf="allLabels.length === 0" class="no-labels-message">No labels created yet.</p>
+        </div>
+      </div>
+ 
+      <div class="add-new-label-section">
+        <h3>{{ editingLabel ? 'Edit Label' : 'Add New Label' }}</h3>
+        <div class="form-group">
+          <label for="modalLabelName">Label Name</label>
+          <input type="text" id="modalLabelName" [(ngModel)]="newLabelName" placeholder="Enter label name" required>
+        </div>
+        <div class="form-group">
+          <label for="modalLabelColor">Color</label>
+          <input type="color" id="modalLabelColor" [(ngModel)]="newLabelColor">
+        </div>
+        <div class="form-group">
+          <label for="modalLabelDescription">Description (optional)</label>
+          <input type="text" id="modalLabelDescription" [(ngModel)]="newLabelDescription" placeholder="Description of the label">
+        </div>
+ 
+        <div class="form-actions">
+          <button *ngIf="!editingLabel" class="btn btn-add" (click)="addLabel()">Add Label</button>
+          <button *ngIf="editingLabel" class="btn btn-save" (click)="saveEditedLabel()">Save Changes</button>
+          <button *ngIf="editingLabel" class="btn btn-cancel" (click)="cancelEdit()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
