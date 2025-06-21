@@ -741,3 +741,92 @@
   color: #dc3545; /* Red for delete */
 }
  
+
+/* src/app/dashboard/dashboard.component.css */
+
+/* Styling for the floating toast notification */
+.dashboard-toast {
+  position: fixed; /* Positions relative to the viewport */
+  top: 20px;       /* Distance from the top */
+  right: 20px;     /* Distance from the right */
+  z-index: 2000;   /* Ensures it's on top of other elements */
+  min-width: 300px;
+  max-width: 90%;
+  padding: 1rem 1.25rem;
+  border-radius: 0.3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px; /* Space between content and close button */
+  opacity: 0; /* Start hidden for fade-in effect */
+  animation: fadeIn 0.3s forwards; /* Simple fade-in */
+}
+
+/* Specific colors - these should ideally match your Bootstrap theme */
+.dashboard-toast.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.dashboard-toast.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.dashboard-toast.alert-info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.dashboard-toast.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+}
+
+.dashboard-toast .toast-content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1; /* Allows message text to take available space */
+}
+
+.dashboard-toast .toast-content i {
+  font-size: 1.5rem; /* Icon size */
+  margin-right: 10px;
+}
+
+.dashboard-toast .toast-content .message-text {
+  flex-grow: 1;
+}
+
+.dashboard-toast .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: inherit; /* Inherit color from parent for visibility */
+  opacity: 0.7;
+}
+
+.dashboard-toast .btn-close:hover {
+  opacity: 1;
+}
+
+/* Keyframes for fade-in effect */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Optional: Add basic styling for items list and labels if not already present */
+.table-responsive {
+  margin-top: 20px;
+}
+
+.badge {
+  font-size: 0.85em; /* Adjust label badge size */
+  padding: 0.4em 0.6em;
+}

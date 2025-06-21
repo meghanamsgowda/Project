@@ -1,15 +1,10 @@
 export class Label {
-    id!:any;
-  name: string;
+    id!:number;
+  name!: string;
   color!: string;
-  description?: string;
+  description!: string;
  
-  constructor(id:any,name: string, color: string, description?: string) {
-     this.id = id ;
-    this.name = name;
-    this.color = color;
-    this.description = description || '';
-  }
+  
 }
 export interface Item {
   id: number;

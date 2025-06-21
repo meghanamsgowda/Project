@@ -39,15 +39,15 @@
     <div class="filter-by-label-section">
       <h3>Filter by Label</h3>
       <div class="label-filter-pills">
-        <button *ngFor="let label of allLabels"
-                class="label-pill"
-                [class.active]="selectedFilterLabelIds.includes(label.id)"
-                [style.background-color]="selectedFilterLabelIds.includes(label.id) ? (label.color || '#6366f1') : '#f0f4f8'"
-                [style.border-color]="selectedFilterLabelIds.includes(label.id) ? (label.color || '#6366f1') : '#d1d5db'"
-                [style.color]="selectedFilterLabelIds.includes(label.id) ? 'white' : getContrastColor(label.color)"
-                (click)="toggleFilterLabel(label.id)">
-          {{ label.name }}
-        </button>
+        <button *ngFor="let label of latestdata"
+                        class="label-pill"
+                        [class.active]="selectedFilterLabelIds.includes(label.id)"
+                        [style.background-color]="label.color || '#cccccc'"  
+                        [style.border-color]="selectedFilterLabelIds.includes(label.id) ? (getContrastColor(label.color) === '#FFFFFF' ? '#EEEEEE' : '#333333') : (label.color || '#cccccc')"
+                        [style.color]="getContrastColor(label.color)"  
+                        (click)="toggleFilterLabel(label.id)">
+                    {{ label.name }}
+                </button>
         <button class="btn btn-tertiary clear-filters-btn" (click)="clearFilter()" [disabled]="selectedFilterLabelIds.length === 0">Clear Filters</button>
       </div>
     </div>
@@ -57,7 +57,11 @@
     <table class="data-grid">
       <thead>
         <tr>
-          <th><input type="checkbox" /></th>
+          <th>
+             <input type="checkbox"
+                               [checked]="isAllSelected"
+                               (change)="toggleAllSelection()" />
+          </th>
           <th>Subject <span class="sort-icon">&#9660;</span></th>
           <th>Sender <span class="sort-icon">&#9660;</span></th>
           <th>Date <span class="sort-icon">&#9660;</span></th>
@@ -128,7 +132,7 @@
       <div class="current-labels-section">
         <h3>Current Labels</h3>
         <div class="labels-list">
-          <div class="label-item" *ngFor="let label of allLabels">
+          <div class="label-item" *ngFor="let label of latestdata">
             <div class="label-info">
               <span class="label-color-dot" [style.background-color]="label.color || '#cccccc'"></span>
               <div class="label-text-container">
@@ -165,7 +169,7 @@
         </div>
  
         <div class="form-actions">
-          <button *ngIf="!editingLabel" class="btn btn-add" (click)="addLabel()">Add Label</button>
+          <button *ngIf="!editingLabel" class="btn btn-add" (click)="createNewLabel()">Add Label</button>
           <button *ngIf="editingLabel" class="btn btn-save" (click)="saveEditedLabel()">Save Changes</button>
           <button *ngIf="editingLabel" class="btn btn-cancel" (click)="cancelEdit()">Cancel</button>
         </div>
